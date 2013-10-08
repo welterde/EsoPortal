@@ -19,7 +19,6 @@ Example usage:
 
 import requests
 from bs4 import BeautifulSoup
-import pyfits
 import mechanize
 
 import os,sys
@@ -178,7 +177,13 @@ class EsoPortal:
     return True
 
 def main():
-  print __doc__
+  conn = EsoPortal()
+  conn.login()
+  conn.queryArchive()
+  conn.createRequest()
+  conn.retrieveData()
+  conn.verifyData()
+  conn.logout()
 
 if __name__=="__main__":
   main()
