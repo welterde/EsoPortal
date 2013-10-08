@@ -54,7 +54,7 @@ def unzip():
     logger.warning("No zipped files in %s" % STAGING_DIR)
     return
   logger.info('Unzipping all *fits.Z files in %s' % STAGING_DIR)
-  P = subprocess.Popen('gzip -d %s/*fits.Z' % STAGING_DIR)
+  P = subprocess.Popen('gzip -d %s/*fits.Z' % STAGING_DIR,shell=True)
   P.wait()
   logger.info('Finished unzipping')
 
