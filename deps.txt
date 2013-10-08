@@ -1,0 +1,4 @@
+requests==2.0.0
+beautifulsoup4==4.3.2
+pyfits==2.4.0
+mechanize==0.2.5
