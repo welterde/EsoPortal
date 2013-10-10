@@ -51,10 +51,10 @@ class EsoPortal:
     self.logger.addHandler(ch)
     self.logger.addHandler(rfh)
 
-  def login(self):
+  def login(self,u=USERNAME,p=PASSWORD):
     login_data = {
-      'username': USERNAME,
-      'password': PASSWORD,
+      'username': u,
+      'password': p,
       'submit': 'login',
       'service': "https://www.eso.org:443/UserPortal/security_check",
       "_eventId": "submit",
@@ -65,29 +65,34 @@ class EsoPortal:
     csrf_tag = soup.find_all('input',attrs={"name":"lt"})[0]
     csrftoken = csrf_tag.attrs['value']
     login_data.update({"lt":csrftoken})
-    self.session.post(LOGIN_URL, data=login_data, headers=dict(Referer=LOGIN_URL))
-    #TODO: Test for success/failure
+    r = self.session.post(LOGIN_URL, data=login_data, headers=dict(Referer=LOGIN_URL))
+    if 'You have successfully logged into the ESO Portal.' in r.content:
+      self.logged_in = True
+      self.logger.info("Login successful")
+    else:
+      self.logged_in = False
+      self.logger.error("Login unsuccessful.")
 
   def logout(self):
     self.session.get(LOGOUT_URL)
     self.logger.info("Logged out")
 
-  def queryArchive(self):
+  def queryArchive(self,inst=INSTRUMENT,sdate=START_DATE,edate=END_DATE,pid=PROGRAM_ID,regex=ARCNAME_REGEX):
     queryparams = {
-        'add':INSTRUMENT,
+        'add':inst,
         'max_rows_returned':10000,
-        'stime':START_DATE,
-        'etime':END_DATE,
+        'stime':sdate,
+        'etime':edate,
         #'starttime':(datetime.datetime.now()-datetime.timedelta(hours=2)).hour,
         #'endtime':datetime.datetime.now().hour,
         'wdbo':'ascii',
-        'prog_id': PROGRAM_ID,
+        'prog_id': pid,
         }
     url = '%s?%s' % (ARCHIVE_URL,urlencode(queryparams))
     r = self.session.get(url)
     self.currentData = []
     for line in r.content.split('\n'):
-      arcname = re.search(ARCNAME_REGEX,line)
+      arcname = re.search(regex,line)
       if arcname:
         self.currentData.append(arcname.group())
     self.logger.info("Query returned %s files" % len(self.currentData))
