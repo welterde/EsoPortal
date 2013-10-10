@@ -43,6 +43,10 @@ def sort():
       P.wait()
 
     P = subprocess.Popen(cmd)
+    P.wait()
+    P.poll()
+    if P.returncode == 0:
+      os.remove(f)
     if not initial_report:
       logger.info('Example command: %s' % ' '.join(cmd))
       initial_report = True
