@@ -10,7 +10,6 @@ ARCHIVE_URL = "http://archive.eso.org/wdb/wdb/eso/eso_archive_main/query"
 RETRIEVAL_URL = "http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html"
 
 SLEEP_TIME = 0.5 #Minutes to wait before making the request and downloading the files
-MAX_PROCESSES = 5 #Max concurrent wget requests
 
 LOGFILE = os.path.join(os.path.dirname(__file__),'esoportal.log')
 

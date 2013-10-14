@@ -34,19 +34,19 @@ def sort():
 
     cmd = []
     cmd.append('mv')
-    cmd.append('--no-clobber')
+   #cmd.append('--no-clobber')
     cmd.append(f)
-    cmd.append(os.path.join(SORTED_DIR,date,'raw',target,origfile))
+    cmd.append(os.path.join(SORTED_DIR,date,'raw',target,ob,origfile))
 
-    if not os.path.isdir(os.path.join(SORTED_DIR,date,'raw',target)):
-      P = subprocess.Popen('mkdir -p %s' % os.path.join(SORTED_DIR,date,'raw',target),shell=True)
+    if not os.path.isdir(os.path.join(SORTED_DIR,date,'raw',target,ob)):
+      P = subprocess.Popen('mkdir -p %s' % os.path.join(SORTED_DIR,date,'raw',target,ob),shell=True)
       P.wait()
 
     P = subprocess.Popen(cmd)
-    P.wait()
-    P.poll()
-    if P.returncode == 0:
-      os.remove(f)
+    #P.wait()
+    #P.poll()
+    #if P.returncode == 0:
+    #  os.remove(f)
     if not initial_report:
       logger.info('Example command: %s' % ' '.join(cmd))
       initial_report = True

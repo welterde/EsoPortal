@@ -30,11 +30,12 @@ import logging
 from logging.handlers import RotatingFileHandler
 import re
 import subprocess
+import base64
 
 from params import (USERNAME,PASSWORD,LOGIN_URL,LOGOUT_URL,LOGFILE,
                     INSTRUMENT, STAGING_DIR, SORTED_DIR, SORTED_DATA_LIFETIME,
                     ARCHIVE_URL,ARCNAME_REGEX, RETRIEVAL_URL,
-                    SLEEP_TIME, PROGRAM_ID, START_DATE, END_DATE, MAX_PROCESSES)
+                    SLEEP_TIME, PROGRAM_ID, START_DATE, END_DATE)
 
 class EsoPortal:
   def __init__(self):
@@ -48,6 +49,7 @@ class EsoPortal:
     rfh.setFormatter(formatter)
     ch = logging.StreamHandler() #console handler
     ch.setFormatter(formatter)
+    self.logger.handlers = []
     self.logger.addHandler(ch)
     self.logger.addHandler(rfh)
 
@@ -59,7 +61,9 @@ class EsoPortal:
       'service': "https://www.eso.org:443/UserPortal/security_check",
       "_eventId": "submit",
     }
-    self.logger.info("Attempting login")
+    self.username = u
+    self.password = p
+    self.logger.info("Attempting login as %s" % self.username)
     r = self.session.get(LOGIN_URL)
     soup = BeautifulSoup(r.content) 
     csrf_tag = soup.find_all('input',attrs={"name":"lt"})[0]
@@ -159,24 +163,50 @@ class EsoPortal:
   def retrieveData(self):
     lines = [line for line in self.script.split('\n') if line ]
     lines = [line for line in lines if not line.startswith('#')]
+    self.requestnumber = lines[0][lines[0].find(self.username):].split('/')[1]
+    self.logger.info("Request created: %s" % self.requestnumber)
     procs = []
-    self.logger.info("Starting downloads with %s processes" % MAX_PROCESSES)
+    #failed = []
+    #self.logger.info("Starting downloads with %s processes" % MAX_PROCESSES)
+    self.logger.info("Starting downloads")
     for line in lines:
-      line = '%s -nc -P %s' % (line,STAGING_DIR)
-      while len(procs) >= MAX_PROCESSES:
-        [p.poll() for p in procs]
-        procs = [p for p in procs if not type(p.returncode)!=int]
-        sleep(1)
-        self.logger.debug("Running wget procs: %s" %len(procs))
-
+      line = '%s -P %s' % (line,STAGING_DIR)
       P = subprocess.Popen(line,shell=True)
+      P.cmd = line
       procs.append(P)
+      P.wait()
+     # while len(procs) >= (MAX_PROCESSES-1):
+     #   [p.poll() for p in procs]
+     #   failed.extend([p for p in procs if p.returncode and p.returncode!=0])
+     #   procs = [p for p in procs if not type(p.returncode)!=int]
+     #   sleep(1)
+
+    #while procs: #Finish up any remaining downloads
+    #  [p.poll() for p in procs]
+      #failed.extend([p for p in procs if p.returncode and p.returncode!=0])
+    #  procs = [p for p in procs if not type(p.returncode)!=intx]
+    #  sleep(1)
+
+    #for failure in failed:
+    #  P = subprocess.Popen(failure.cmd,shell=True)
+    #  P.wait()
+
+  def reDownload(self):
+    for f in self.redo:
+      cmd = 'wget --no-check-certificate --header=Authorization: Basic %s https://dataportal.eso.org/dataPortal/api/requests/%s/%s/SAF/%s.fits.Z -P %s'
+      cmd = cmd % (base64.b64encode('%s:%s') % (self.username,self.password),self.username,self.requestnumber,f,STAGING_DIR)
+      self.logger.debug(cmd)
+      P = subprocess.Popen(cmd,shell=True)
+      P.wait()
 
   def verifyData(self):
     files = [f.replace('.fits.Z','') for f in os.listdir(os.path.abspath(STAGING_DIR))]
     diff = set(self.currentData).difference(files)
+    self.redo = diff
     if diff:
       self.logger.warning("%s files seem to be missing." % len(diff))
+      self.logger.warning("Attempting to re-download missing files now")
+      self.reDownload()
       return False
     self.logger.info("All files have downloaded.")
     return True

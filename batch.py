@@ -9,11 +9,10 @@ def main():
   with open(args.file[0],'r') as fp:
     lines = fp.readlines()
     
-  lines = lines.split('\n')  
   lines = [i for i in lines if i]
   lines = [i for i in lines if not i.startswith('#')]
   for line in lines:
-    pid,u,p = line
+    pid,u,p = line.strip().split()
     conn = EsoPortal()
     conn.login(u=u,p=p)
     conn.queryArchive(pid=pid)
