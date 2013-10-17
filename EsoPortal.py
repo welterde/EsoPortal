@@ -87,6 +87,8 @@ class EsoPortal:
         'max_rows_returned':10000,
         'stime':sdate,
         'etime':edate,
+        'starttime':16,
+        'endtime':16,
         #'starttime':(datetime.datetime.now()-datetime.timedelta(hours=2)).hour,
         #'endtime':datetime.datetime.now().hour,
         'wdbo':'ascii',
