@@ -105,6 +105,8 @@ class EsoPortal:
 
   def createRequest(self):
     arcfiles = self.currentData
+    if not arcfiles:
+      return
     #This should work, but it doesn't. I would love for someone to tell me why.
     ########################################
     # post_params = {
@@ -163,6 +165,8 @@ class EsoPortal:
     self.script = r.content
 
   def retrieveData(self):
+    if not self.currentData:
+      return
     lines = [line for line in self.script.split('\n') if line ]
     lines = [line for line in lines if not line.startswith('#')]
     self.requestnumber = lines[0][lines[0].find(self.username):].split('/')[1]
@@ -202,6 +206,8 @@ class EsoPortal:
       P.wait()
 
   def verifyData(self):
+    if not self.currentData:
+      return
     files = [f.replace('.fits.Z','') for f in os.listdir(os.path.abspath(STAGING_DIR))]
     diff = set(self.currentData).difference(files)
     self.redo = diff
