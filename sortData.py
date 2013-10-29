@@ -27,8 +27,10 @@ def sort():
     hdr = hdulist[0].header
 
     target = hdr['TARGETID']
-    date = hdr['DATE-OBS']
-    date = date[:date.find('T')]
+    date = datetime.datetime.strptime(hdr['DATE-OBS'],'%Y-%m-%dT%H:%M:%S.%f')
+    if date.hour < 16: #We want the date folder to coorespond to the beginning of the night.
+      date -= datetime.timedelta(days=1)
+    date = date.strftime('%Y-%m-%d')
     ob = 'OB%s_%s' % (hdr['OBSRUNID'],hdr['OBSEQNUM'])
     origfile = hdr['ORIGFILE']
 
