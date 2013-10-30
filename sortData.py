@@ -3,6 +3,7 @@ import subprocess
 import logging
 import pyfits
 import re
+import datetime
 
 from params import (STAGING_DIR,SORTED_DIR)
 
