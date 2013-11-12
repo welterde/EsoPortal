@@ -200,7 +200,7 @@ class EsoPortal:
   def reDownload(self):
     for f in self.redo:
       cmd = 'wget --no-check-certificate --header=Authorization: Basic %s https://dataportal.eso.org/dataPortal/api/requests/%s/%s/SAF/%s.fits.Z -P %s'
-      cmd = cmd % (base64.b64encode('%s:%s') % (self.username,self.password),self.username,self.requestnumber,f,STAGING_DIR)
+      cmd = cmd % (base64.b64encode('%s:%s' % (self.username,self.password)),self.username,self.requestnumber,f,STAGING_DIR)
       self.logger.debug(cmd)
       P = subprocess.Popen(cmd,shell=True)
       P.wait()
