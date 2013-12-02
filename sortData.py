@@ -16,11 +16,31 @@ ch = logging.StreamHandler() #console handler
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
+
+def rewriteFitsHeader(f):
+  updateData = {
+    'TARGETID':[
+      #('OriginalName','ChangedName'),
+      ('ZillaMonster','CALIB'),
+    ],
+  }
+
+  hdulist = pyfits.open(f,mode='update')
+  hdr = hdulist[0].header
+  for k in updateData:
+    if k not in hdr:
+      continue
+    for L in updateData[k]:
+      if hdr[k] == L[0]:
+        hdr.update(k,L[1])
+        hdulist.flush()
+  hdulist.close()
 def sort():
   logger.info("Sorting data based on FITS keywords")
   initial_report = False
   for f in [os.path.join(STAGING_DIR,i) for i in os.listdir(os.path.abspath(STAGING_DIR))]:
     try:
+      rewriteFitsHeader(f)
       hdulist = pyfits.open(f)
     except:
       logger.warning("Could not open %s" % f)
