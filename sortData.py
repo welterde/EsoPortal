@@ -22,6 +22,7 @@ def rewriteFitsHeader(f):
     'TARGETID':[
       #('OriginalName','ChangedName'),
       ('ZillaMonster','CALIB'),
+      ('Zilla_Monster','CALIB'),
     ],
   }
 
