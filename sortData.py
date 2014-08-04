@@ -34,7 +34,7 @@ def rewriteFitsHeader(f):
     for L in updateData[k]:
       if hdr[k] == L[0]:
         hdr.update(k,L[1])
-        hdulist.flush()
+  hdulist.flush()
   hdulist.close()
 def sort():
   logger.info("Sorting data based on FITS keywords")
