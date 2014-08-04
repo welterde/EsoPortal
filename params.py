@@ -22,3 +22,6 @@ ARCNAME_REGEX = 'GROND\.\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d\.\d\d\d'
 PROGRAM_ID = '092.A-9099(A)'
 START_DATE = (datetime.date.today()-datetime.timedelta(days=1)).strftime("%d %m %Y") #string: "d m Y" format
 END_DATE = datetime.date.today().strftime("%d %m %Y")
+RA_TARGET = False #258.561454
+DEC_TARGET = False #-13.05164
+BOX_SEARCH="00 10 00%C2%B0_or_hour=hours"

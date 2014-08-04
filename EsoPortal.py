@@ -35,7 +35,8 @@ import base64
 from params import (USERNAME,PASSWORD,LOGIN_URL,LOGOUT_URL,LOGFILE,
                     INSTRUMENT, STAGING_DIR, SORTED_DIR, SORTED_DATA_LIFETIME,
                     ARCHIVE_URL,ARCNAME_REGEX, RETRIEVAL_URL,
-                    SLEEP_TIME, PROGRAM_ID, START_DATE, END_DATE)
+                    SLEEP_TIME, PROGRAM_ID, START_DATE, END_DATE,
+                    RA_TARGET, DEC_TARGET, BOX_SEARCH)
 
 class EsoPortal:
   def __init__(self):
@@ -81,7 +82,7 @@ class EsoPortal:
     self.session.get(LOGOUT_URL)
     self.logger.info("Logged out")
 
-  def queryArchive(self,inst=INSTRUMENT,sdate=START_DATE,edate=END_DATE,pid=PROGRAM_ID,regex=ARCNAME_REGEX):
+  def queryArchive(self,inst=INSTRUMENT,sdate=START_DATE,edate=END_DATE,pid=PROGRAM_ID,regex=ARCNAME_REGEX,ra=RA_TARGET,dec=DEC_TARGET,box=BOX_SEARCH):
     queryparams = {
         'add':inst,
         'max_rows_returned':10000,
@@ -94,6 +95,10 @@ class EsoPortal:
         'wdbo':'ascii',
         'prog_id': pid,
         }
+    if RA_TARGET and DEC_TARGET:
+      queryparams['ra'] = ra
+      queryparams['dec'] = dec
+      queryparams['box'] = box
     url = '%s?%s' % (ARCHIVE_URL,urlencode(queryparams))
     r = self.session.get(url)
     self.currentData = []
