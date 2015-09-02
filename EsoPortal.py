@@ -145,7 +145,7 @@ class EsoPortal:
     self.br.set_handle_robots(False)   # ignore robots
     self.br.set_cookiejar(self.session.cookies)
     self.br.open(RETRIEVAL_URL)
-    self.br.form = list(self.br.forms())[1]
+    self.br.form = list(self.br.forms())[2]
     self.br.form.controls[0].value = '\n'.join(arcfiles)
       ##Python mechanize is broken, fixing it: 
       ##http://stackoverflow.com/questions/2394420/python-mechanize-ignores-form-input-in-the-html
