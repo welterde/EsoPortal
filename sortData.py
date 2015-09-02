@@ -47,13 +47,19 @@ def sort():
       logger.warning("Could not open %s" % f)
       continue
     hdr = hdulist[0].header
-
-    target = hdr['TARGETID']
+    
+    if 'TARGETID' in hdr:
+      target = hdr['TARGETID']
+    else:
+      target = 'UNKNOWN'
     date = datetime.datetime.strptime(hdr['DATE-OBS'],'%Y-%m-%dT%H:%M:%S.%f')
     if date.hour < 16: #We want the date folder to coorespond to the beginning of the night.
       date -= datetime.timedelta(days=1)
     date = date.strftime('%Y-%m-%d')
-    ob = 'OB%s_%s' % (hdr['OBSRUNID'],hdr['OBSEQNUM'])
+    if 'OBSRUNID' in hdr:
+      ob = 'OB%s_%s' % (hdr['OBSRUNID'],hdr['OBSEQNUM'])
+    else:
+      ob = 'UNKNOWN'
     origfile = hdr['ORIGFILE']
 
     cmd = []
