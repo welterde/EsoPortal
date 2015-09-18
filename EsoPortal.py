@@ -38,6 +38,9 @@ from params import (USERNAME,PASSWORD,LOGIN_URL,LOGOUT_URL,LOGFILE,
                     SLEEP_TIME, PROGRAM_ID, START_DATE, END_DATE,
                     RA_TARGET, DEC_TARGET, BOX_SEARCH)
 
+FILE_RE = re.compile('"(http.+)"')
+REQNUM_RE = re.compile('requests/\S+/(\d+)/SAF')
+
 class EsoPortal:
   def __init__(self):
     self.session = requests.session()
@@ -74,6 +77,12 @@ class EsoPortal:
     if 'You have successfully logged into the ESO Portal.' in r.content:
       self.logged_in = True
       self.logger.info("Login successful")
+      self.tmpfile = tempfile.mkstemp(suffix='.txt', dir='.')[1]
+      with open(self.tmpfile, 'w') as f:
+        f.write('auth_no_challenge=on\n')
+        f.write('--http-user=%s\n' % u)
+        f.write('--http-password=%s\n' % p)
+      os.chmod(self.tmpfile, 0o600)
     else:
       self.logged_in = False
       self.logger.error("Login unsuccessful.")
@@ -82,6 +91,8 @@ class EsoPortal:
 
   def logout(self):
     self.session.get(LOGOUT_URL)
+    if os.path.isfile(self.tempfile):
+      os.remove(self.tempfile)
     self.logger.info("Logged out")
 
   def queryArchive(self,inst=INSTRUMENT,sdate=START_DATE,edate=END_DATE,pid=PROGRAM_ID,regex=ARCNAME_REGEX,ra=RA_TARGET,dec=DEC_TARGET,box=BOX_SEARCH):
@@ -174,20 +185,16 @@ class EsoPortal:
   def retrieveData(self):
     if not self.currentData:
       return
-    lines = [line for line in self.script.split('\n') if line ]
-    lines = [line for line in lines if not line.startswith('#')]
-    self.requestnumber = lines[0][lines[0].find(self.username):].split('/')[1]
+    file_uris = FILE_RE.findall(self.script)
+    self.requestnumber = REQNUM_RE.search(file_uris[0]).group(1)
     self.logger.info("Request created: %s" % self.requestnumber)
     procs = []
     #failed = []
     #self.logger.info("Starting downloads with %s processes" % MAX_PROCESSES)
     self.logger.info("Starting downloads")
-    for line in lines:
-      line = '%s -P %s' % (line,STAGING_DIR)
-      P = subprocess.Popen(line,shell=True)
-      P.cmd = line
-      procs.append(P)
-      P.wait()
+    os.environ["WGETRC"] = self.tmpfile
+    for f in file_uris:
+      subprocess.call(['wget', '-P', STAGING_DIR, f])
      # while len(procs) >= (MAX_PROCESSES-1):
      #   [p.poll() for p in procs]
      #   failed.extend([p for p in procs if p.returncode and p.returncode!=0])
@@ -205,9 +212,10 @@ class EsoPortal:
     #  P.wait()
 
   def reDownload(self):
+    os.environ["WGETRC"] = self.tmpfile
     for f in self.redo:
-      cmd = 'wget --no-check-certificate --header=Authorization: Basic %s https://dataportal.eso.org/dataPortal/api/requests/%s/%s/SAF/%s.fits.Z -P %s'
-      cmd = cmd % (base64.b64encode('%s:%s' % (self.username,self.password)),self.username,self.requestnumber,f,STAGING_DIR)
+      cmd = 'wget --no-check-certificate https://dataportal.eso.org/dataPortal/api/requests/%s/%s/SAF/%s.fits.Z -P %s'
+      cmd = cmd % (self.username,self.requestnumber,f,STAGING_DIR)
       self.logger.debug(cmd)
       P = subprocess.Popen(cmd,shell=True)
       P.wait()
