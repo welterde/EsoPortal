@@ -31,6 +31,7 @@ from logging.handlers import RotatingFileHandler
 import re
 import subprocess
 import base64
+import tempfile
 
 from params import (USERNAME,PASSWORD,LOGIN_URL,LOGOUT_URL,LOGFILE,
                     INSTRUMENT, STAGING_DIR, SORTED_DIR, SORTED_DATA_LIFETIME,
