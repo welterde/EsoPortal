@@ -14,7 +14,8 @@ def main():
   for line in lines:
     pid,u,p = line.strip().split()
     conn = EsoPortal()
-    conn.login(u=u,p=p)
+    if not conn.login(u=u,p=p):
+      continue
     conn.queryArchive(pid=pid)
     conn.createRequest()
     conn.retrieveData()

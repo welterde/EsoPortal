@@ -78,6 +78,8 @@ class EsoPortal:
       self.logged_in = False
       self.logger.error("Login unsuccessful.")
 
+    return self.logged_in
+
   def logout(self):
     self.session.get(LOGOUT_URL)
     self.logger.info("Logged out")
