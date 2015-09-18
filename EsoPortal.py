@@ -87,12 +87,13 @@ class EsoPortal:
     else:
       self.logged_in = False
       self.logger.error("Login unsuccessful.")
+      self.tempfile = None
 
     return self.logged_in
 
   def logout(self):
     self.session.get(LOGOUT_URL)
-    if os.path.isfile(self.tempfile):
+    if self.tempfile is not None and os.path.isfile(self.tempfile):
       os.remove(self.tempfile)
     self.logger.info("Logged out")
 
