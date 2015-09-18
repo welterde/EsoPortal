@@ -87,14 +87,14 @@ class EsoPortal:
     else:
       self.logged_in = False
       self.logger.error("Login unsuccessful.")
-      self.tempfile = None
+      self.tmpfile = None
 
     return self.logged_in
 
   def logout(self):
     self.session.get(LOGOUT_URL)
-    if self.tempfile is not None and os.path.isfile(self.tempfile):
-      os.remove(self.tempfile)
+    if self.tmpfile is not None and os.path.isfile(self.tmpfile):
+      os.remove(self.tmpfile)
     self.logger.info("Logged out")
 
   def queryArchive(self,inst=INSTRUMENT,sdate=START_DATE,edate=END_DATE,pid=PROGRAM_ID,regex=ARCNAME_REGEX,ra=RA_TARGET,dec=DEC_TARGET,box=BOX_SEARCH):
