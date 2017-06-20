@@ -54,8 +54,8 @@ class Job(object):
                 self.state = 'running'
                 try:
                     conn.queryArchive(pid=prog_id,
-                                      sdate=datetime.date.fromordinal(self.day-1).strftime("%d %m %Y"),
-                                      edate=datetime.date.fromordinal(self.day).strftime("%d %m %Y"))
+                                      sdate=datetime.date.fromordinal(self.day).strftime("%d %m %Y"),
+                                      edate=datetime.date.fromordinal(self.day+1).strftime("%d %m %Y"))
                     conn.createRequest()
                     conn.retrieveData()
                     conn.verifyData()
