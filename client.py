@@ -23,9 +23,13 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.cmd == 'request':
+        if args.day == 'today':
+            day = (datetime.date.today()-datetime.timedelta(days=1)).toordinal()
+        else:
+            datetime.datetime.strptime(args.day, '%Y-%m-%d').toordinal()
         req = {
             'cmd': 'req',
-            'day': datetime.datetime.strptime(args.day, '%Y-%m-%d').toordinal()
+            'day': day
         }
         send_cmd(req)
     elif args.cmd == 'list':
