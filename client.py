@@ -26,7 +26,7 @@ if __name__ == '__main__':
         if args.day == 'today':
             day = (datetime.date.today()).toordinal()
         else:
-            day = datetime.datetime.strptime(args.day, '%Y-%m-%d').toordinal()-1
+            day = datetime.datetime.strptime(args.day, '%Y-%m-%d').toordinal()
         req = {
             'cmd': 'req',
             'day': day
